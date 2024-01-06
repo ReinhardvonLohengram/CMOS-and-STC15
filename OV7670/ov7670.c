@@ -1,8 +1,8 @@
 
-//����ͷģ�� ����OV7670  �ֱ���Ϊ640x480   ��ʵ��Ӧ���в���QVGAģʽ ��240x320 ģʽ
-//���ں���ӿ� ����ͷ�ɼ���ͼ���ʵ�ʵ�ͼ���ǵ��ŵ�  ���ǲɼ������240x320��С ���Գ����ϲ���240x240����ʾ�� ��ʾ�����Ч��
-//ɨ�跽��Ϊ������ ���ϵ���
-//��������Ȼ����һ���ֵ���ʾ  ��������ʾ�ٶ����ּӿ��˺ö�
+//摄像头模块 采用OV7670  分辨率为640x480   在实际应用中采用QVGA模式 即240x320 模式
+//对于黑灵接口 摄像头采集的图像和实际的图像是倒着的  但是采集框就是240x320大小 所以程序上采用240x240的显示框 显示正向的效果
+//扫描方向为从左到右 从上到下
+//这样做虽然少了一部分的显示  但是在显示速度上又加快了好多
 #include  "STC/stc15f2k60s2.h"
 #include  "gui.h"
 #include  "tft.h"
@@ -11,23 +11,23 @@
 #include  "sccb.h"
 #include  "xpt2046.h"
 
-//OV7670�Ĵ�������
+//OV7670寄存器配置
 char code OV7670_reg_normal[OV7670_REG_NUM][2]=
 {	 
  
-     /*����ΪOV7670 QVGA RGB565����    �������� ���Բο������� ov7670���İ�PDF����*/
+     /*以下为OV7670 QVGA RGB565参数    具体内容 可以参考资料里 ov7670中文版PDF资料*/
   	{0x3a, 0x04},//dummy
 	{0x40, 0x10},//565
 	{0x12, 0x14},//@
 
 
-	{0x17, 0x16},//��Ƶ��ʼ��8λ       
-	{0x18, 0x04},//��Ƶ������8λ
-	{0x19, 0x02},//��Ƶ��ʼ��8λ
-    {0x1a, 0x7a},//��Ƶ������8λ
+	{0x17, 0x16},//行频开始高8位       
+	{0x18, 0x04},//行频结束高8位
+	{0x19, 0x02},//场频开始高8位
+    {0x1a, 0x7a},//场频结束高8位
 
-	{0x32, 0x80},//��Ƶ��ʼ��3λbit[2:0]	 ��Ƶ������3λbit[5:3]
-    {0x03, 0x0a},//λ��3��2����Ƶ������2λ  λ��1��0����Ƶ��ʼ��2λ
+	{0x32, 0x80},//行频开始低3位bit[2:0]	 行频结束低3位bit[5:3]
+    {0x03, 0x0a},//位【3：2】场频结束低2位  位【1：0】场频开始低2位
 
 	{0x0c, 0x0c},
     {0x15, 0x00},
@@ -153,29 +153,29 @@ char code OV7670_reg_normal[OV7670_REG_NUM][2]=
         
   //{0x54, 0x40},//110
         
-  //{0x09, 0x03},//�����������   
+  //{0x09, 0x03},//驱动能力最大   
 	{0x6e, 0x11},//100
 	{0x6f, 0x9f},//0x9e for advance AWB
-    {0x55, 0x00},//����
-    {0x56, 0x40},//�Աȶ�
+    {0x55, 0x00},//亮度
+    {0x56, 0x40},//对比度
     {0x57, 0x80},//0x40,  change according to Jim's request	  
 };
 char code OV7670_reg_fupian[OV7670_REG_NUM][2]=
 {	 
  
-     /*����ΪOV7670 QVGA RGB565����    �������� ���Բο������� ov7670���İ�PDF����*/
+     /*以下为OV7670 QVGA RGB565参数    具体内容 可以参考资料里 ov7670中文版PDF资料*/
   	{0x3a, 0x24},//dummy
 	{0x40, 0x10},//565
 	{0x12, 0x14},//@
 
 
-	{0x17, 0x16},//��Ƶ��ʼ��8λ       
-	{0x18, 0x04},//��Ƶ������8λ
-	{0x19, 0x02},//��Ƶ��ʼ��8λ
-    {0x1a, 0x7a},//��Ƶ������8λ
+	{0x17, 0x16},//行频开始高8位       
+	{0x18, 0x04},//行频结束高8位
+	{0x19, 0x02},//场频开始高8位
+    {0x1a, 0x7a},//场频结束高8位
 
-	{0x32, 0x80},//��Ƶ��ʼ��3λbit[2:0]	 ��Ƶ������3λbit[5:3]
-    {0x03, 0x0a},//λ��3��2����Ƶ������2λ  λ��1��0����Ƶ��ʼ��2λ
+	{0x32, 0x80},//行频开始低3位bit[2:0]	 行频结束低3位bit[5:3]
+    {0x03, 0x0a},//位【3：2】场频结束低2位  位【1：0】场频开始低2位
 
 	{0x0c, 0x0c},
     {0x15, 0x00},
@@ -301,30 +301,30 @@ char code OV7670_reg_fupian[OV7670_REG_NUM][2]=
         
   //{0x54, 0x40},//110
         
-  //{0x09, 0x03},//�����������   
+  //{0x09, 0x03},//驱动能力最大   
 	{0x6e, 0x11},//100
 	{0x6f, 0x9f},//0x9e for advance AWB
-    {0x55, 0x00},//����
-    {0x56, 0x40},//�Աȶ�
+    {0x55, 0x00},//亮度
+    {0x56, 0x40},//对比度
     {0x57, 0x80},//0x40,  change according to Jim's request	  
 };
 
 char code OV7670_reg_fanzhuan[OV7670_REG_NUM][2]=
 {	 
  
-     /*����ΪOV7670 QVGA RGB565����    �������� ���Բο������� ov7670���İ�PDF����*/
+     /*以下为OV7670 QVGA RGB565参数    具体内容 可以参考资料里 ov7670中文版PDF资料*/
   	{0x3a, 0x04},//dummy
 	{0x40, 0x10},//565
 	{0x12, 0x14},//@
 
 
-	{0x17, 0x16},//��Ƶ��ʼ��8λ       
-	{0x18, 0x04},//��Ƶ������8λ
-	{0x19, 0x02},//��Ƶ��ʼ��8λ
-    {0x1a, 0x7a},//��Ƶ������8λ
+	{0x17, 0x16},//行频开始高8位       
+	{0x18, 0x04},//行频结束高8位
+	{0x19, 0x02},//场频开始高8位
+    {0x1a, 0x7a},//场频结束高8位
 
-	{0x32, 0x80},//��Ƶ��ʼ��3λbit[2:0]	 ��Ƶ������3λbit[5:3]
-    {0x03, 0x0a},//λ��3��2����Ƶ������2λ  λ��1��0����Ƶ��ʼ��2λ
+	{0x32, 0x80},//行频开始低3位bit[2:0]	 行频结束低3位bit[5:3]
+    {0x03, 0x0a},//位【3：2】场频结束低2位  位【1：0】场频开始低2位
 
 	{0x0c, 0x0c},
     {0x15, 0x00},
@@ -450,93 +450,93 @@ char code OV7670_reg_fanzhuan[OV7670_REG_NUM][2]=
         
   //{0x54, 0x40},//110
         
-  //{0x09, 0x03},//�����������   
+  //{0x09, 0x03},//驱动能力最大   
 	{0x6e, 0x11},//100
 	{0x6f, 0x9f},//0x9e for advance AWB
-    {0x55, 0x00},//����
-    {0x56, 0x40},//�Աȶ�
+    {0x55, 0x00},//亮度
+    {0x56, 0x40},//对比度
     {0x57, 0x80},//0x40,  change according to Jim's request	  
 };
 
 
 
 
-//дOV7660�Ĵ���
-//дOV7660�Ĵ���
-//���أ�1-�ɹ�	0-ʧ��
-//regID	 �Ĵ�����ַ  regDat  ���� 
+//写OV7660寄存器
+//写OV7660寄存器
+//返回：1-成功	0-失败
+//regID	 寄存器地址  regDat  数据 
 u8 wr_Sensor_Reg(u8 regID, u8 regDat)
 {
 
- startSCCB(); //����SCCB ���߿�ʼ��������
+ startSCCB(); //发送SCCB 总线开始传输命令
 	 
- if(SCCBwriteByte(0x42)==0)//д��ַ		�ֲ�11ҳ��
+ if(SCCBwriteByte(0x42)==0)//写地址		手册11页上
  {		  
-  stopSCCB();//����SCCB ����ֹͣ��������
-  return(0);//���󷵻�
+  stopSCCB();//发送SCCB 总线停止传输命令
+  return(0);//错误返回
  }
 
- if(SCCBwriteByte(regID)==0)//�Ĵ���ID
+ if(SCCBwriteByte(regID)==0)//寄存器ID
  {			
-  stopSCCB();//����SCCB ����ֹͣ��������
-  return(0); //���󷵻�
+  stopSCCB();//发送SCCB 总线停止传输命令
+  return(0); //错误返回
  }
 
- if(SCCBwriteByte(regDat)==0)//д���ݵ�������
+ if(SCCBwriteByte(regDat)==0)//写数据到积存器
  {
-  stopSCCB();//����SCCB ����ֹͣ��������
-  return(0);//���󷵻�
+  stopSCCB();//发送SCCB 总线停止传输命令
+  return(0);//错误返回
  }
 
- stopSCCB();//����SCCB ����ֹͣ��������
+ stopSCCB();//发送SCCB 总线停止传输命令
 	 
 
- return(1);//�ɹ�����
+ return(1);//成功返回
 }
 
 
-//��OV7660�Ĵ���
-//���أ�1-�ɹ�	0-ʧ��
-//regID	 �Ĵ�����ַ  regDat  ����
+//读OV7660寄存器
+//返回：1-成功	0-失败
+//regID	 寄存器地址  regDat  数据
 u8 rd_Sensor_Reg(u8 regID, u8 *regDat)
 {
- //ͨ��д�������üĴ�����ַ
+ //通过写操作设置寄存器地址
 
  startSCCB();
 
- if(0==SCCBwriteByte(0x42))//д��ַ		�ֲ�11ҳ��
+ if(0==SCCBwriteByte(0x42))//写地址		手册11页上
  {
-  stopSCCB();//����SCCB ����ֹͣ��������
-  return(0);//���󷵻�
+  stopSCCB();//发送SCCB 总线停止传输命令
+  return(0);//错误返回
  }
 
- if(0==SCCBwriteByte(regID))//������ID
+ if(0==SCCBwriteByte(regID))//积存器ID
  {
-  stopSCCB();//����SCCB ����ֹͣ��������
-  return(0);//���󷵻�
+  stopSCCB();//发送SCCB 总线停止传输命令
+  return(0);//错误返回
  }
- stopSCCB();//����SCCB ����ֹͣ��������
+ stopSCCB();//发送SCCB 总线停止传输命令
 	
- //���üĴ�����ַ�󣬲��Ƕ�
+ //设置寄存器地址后，才是读
  startSCCB();
 
- if(0==SCCBwriteByte(0x43))//����ַ		  �ֲ�11ҳ��
+ if(0==SCCBwriteByte(0x43))//读地址		  手册11页上
  {
-  stopSCCB();//����SCCB ����ֹͣ��������
-  return(0);//���󷵻�
+  stopSCCB();//发送SCCB 总线停止传输命令
+  return(0);//错误返回
  }
 	
- *regDat=SCCBreadByte();//���ض�����ֵ
+ *regDat=SCCBreadByte();//返回读到的值
 
- noAck();//����NACK����
- stopSCCB();//����SCCB ����ֹͣ��������
+ noAck();//发送NACK命令
+ stopSCCB();//发送SCCB 总线停止传输命令
 
- return(1);//�ɹ�����
+ return(1);//成功返回
 }
 
-//��ʼ������ͷ����
-//Sensor_init()  ����ͷоƬ��ʼ��
-//����0�ɹ�������1ʧ��
+//初始化摄像头配置
+//Sensor_init()  摄像头芯片初始化
+//返回0成功，返回1失败
 //=================================================
 u8 Ov7670_init_normal(void)
 {
@@ -544,18 +544,18 @@ u8 Ov7670_init_normal(void)
      tem1,tem2;
 
         	
- if(0==wr_Sensor_Reg(0x12,0x80)) //Reset SCCB	��λSCCB
+ if(0==wr_Sensor_Reg(0x12,0x80)) //Reset SCCB	复位SCCB
  {	
-  return 1 ;//���󷵻�
+  return 1 ;//错误返回
  }
 
- if(0==rd_Sensor_Reg(0x0b, &tem1))//��ID	��Ʒ���ֽ�ʶ���
+ if(0==rd_Sensor_Reg(0x0b, &tem1))//读ID	产品低字节识别号
  {
-  return 1 ;//���󷵻�
+  return 1 ;//错误返回
  }
-  if(0==rd_Sensor_Reg(0x0a, &tem2))//��ID	��Ʒ���ֽ�ʶ���
+  if(0==rd_Sensor_Reg(0x0a, &tem2))//读ID	产品高字节识别号
  {
-  return 1 ;//���󷵻�
+  return 1 ;//错误返回
  }
 	
 
@@ -563,18 +563,18 @@ u8 Ov7670_init_normal(void)
  {	
   if(tem2==0x76)
   {			
-  for(i=0;i<OV7670_REG_NUM;i++)			  //д�Ĵ���ѭ��
+  for(i=0;i<OV7670_REG_NUM;i++)			  //写寄存器循环
   {
 
    if(0==wr_Sensor_Reg(OV7670_reg_normal[i][0],OV7670_reg_normal[i][1]))
    {  
-	return 1;//���󷵻�
+	return 1;//错误返回
    }
   }
   return 0;
  }
  }
-return 1;  //���󷵻�
+return 1;  //错误返回
 } 
 
 u8 Ov7670_init_fanzhuan(void)
@@ -583,18 +583,18 @@ u8 Ov7670_init_fanzhuan(void)
      tem1,tem2;
 
         	
- if(0==wr_Sensor_Reg(0x12,0x80)) //Reset SCCB	��λSCCB
+ if(0==wr_Sensor_Reg(0x12,0x80)) //Reset SCCB	复位SCCB
  {	
-  return 1 ;//���󷵻�
+  return 1 ;//错误返回
  }
 
- if(0==rd_Sensor_Reg(0x0b, &tem1))//��ID	��Ʒ���ֽ�ʶ���
+ if(0==rd_Sensor_Reg(0x0b, &tem1))//读ID	产品低字节识别号
  {
-  return 1 ;//���󷵻�
+  return 1 ;//错误返回
  }
-  if(0==rd_Sensor_Reg(0x0a, &tem2))//��ID	��Ʒ���ֽ�ʶ���
+  if(0==rd_Sensor_Reg(0x0a, &tem2))//读ID	产品高字节识别号
  {
-  return 1 ;//���󷵻�
+  return 1 ;//错误返回
  }
 	
 
@@ -602,25 +602,25 @@ u8 Ov7670_init_fanzhuan(void)
  {	
   if(tem2==0x76)
   {			
-  for(i=0;i<OV7670_REG_NUM;i++)			  //д�Ĵ���ѭ��
+  for(i=0;i<OV7670_REG_NUM;i++)			  //写寄存器循环
   {
 
    if(0==wr_Sensor_Reg(OV7670_reg_fanzhuan[i][0],OV7670_reg_fanzhuan[i][1]))
    {  
-	return 1;//���󷵻�
+	return 1;//错误返回
    }
   }
   return 0;
  }
  }
-return 1;  //���󷵻�
+return 1;  //错误返回
 } 
 
 
-//��ʼ������ͷ����
-//��ʼ������ͷ����
-//Sensor_init()  ����ͷоƬ��ʼ��
-//����0�ɹ�������1ʧ��
+//初始化摄像头配置
+//初始化摄像头配置
+//Sensor_init()  摄像头芯片初始化
+//返回0成功，返回1失败
 //=================================================
 u8 Ov7670_init_fupian(void)
 {
@@ -628,18 +628,18 @@ u8 Ov7670_init_fupian(void)
      tem1,tem2;
 
         	
- if(0==wr_Sensor_Reg(0x12,0x80)) //Reset SCCB	��λSCCB
+ if(0==wr_Sensor_Reg(0x12,0x80)) //Reset SCCB	复位SCCB
  {	
-  return 1 ;//���󷵻�
+  return 1 ;//错误返回
  }
 
- if(0==rd_Sensor_Reg(0x0b, &tem1))//��ID	��Ʒ���ֽ�ʶ���
+ if(0==rd_Sensor_Reg(0x0b, &tem1))//读ID	产品低字节识别号
  {
-  return 1 ;//���󷵻�
+  return 1 ;//错误返回
  }
-  if(0==rd_Sensor_Reg(0x0a, &tem2))//��ID	��Ʒ���ֽ�ʶ���
+  if(0==rd_Sensor_Reg(0x0a, &tem2))//读ID	产品高字节识别号
  {
-  return 1 ;//���󷵻�
+  return 1 ;//错误返回
  }
 	
 
@@ -647,71 +647,71 @@ u8 Ov7670_init_fupian(void)
  {	
   if(tem2==0x76)
   {			
-  for(i=0;i<OV7670_REG_NUM;i++)			  //д�Ĵ���ѭ��
+  for(i=0;i<OV7670_REG_NUM;i++)			  //写寄存器循环
   {
 
    if(0==wr_Sensor_Reg(OV7670_reg_fupian[i][0],OV7670_reg_fupian[i][1]))
    {  
-	return 1;//���󷵻�
+	return 1;//错误返回
    }
   }
   return 0;
  }
  }
-return 1;  //���󷵻�
+return 1;  //错误返回
 } 
-//����ͼ���������
-//��QVGA���á�
-//sx  sy Ϊ��Ƶ ����Ƶ�ĳ�ʼֵ ���ֵ��ov�������Ҷ��� �ڳ�ʼ�������һ�¾���֪�� ��Ƶ��10  ��Ƶ��176
-//width Ϊ��Ƶ����   height Ϊ��Ƶ����	  
-//����ͷ�ڳ�ʼ��ʱ�� ���Ѿ����ó�QVGA��ʽ Ҳ����˵��320x240�ķֱ���
-//��ô��������ʾ�����ʱ���ܳ���������ֱ��� ����Ҳ�����ж������ʾ ע�⣡
+//设置图像输出窗口
+//对QVGA设置。
+//sx  sy 为场频 和行频的初始值 这个值是ov本身厂家定的 在初始化里计数一下就能知道 场频是10  行频是176
+//width 为场频方向   height 为行频方向	  
+//摄像头在初始的时候 就已经设置成QVGA格式 也就是说是320x240的分辨率
+//那么在设置显示区域的时候不能超过这个个分辨率 否则也不会有多余的显示 注意！
 void OV7670_Window_Set(u16 sx,u16 sy,u16 width,u16 height)
 {
 	u16 endx;
 	u16 endy;																	   
 	u8 temp; 
-	endx=sx+width*2;	//V*2   һ����ɫ�����ֽ�
+	endx=sx+width*2;	//V*2   一个颜色两个字节
  	endy=sy+height*2;
-	if(endy>784)endy-=784;		//����Ҫ��ʱ��ͼ 784Ϊ��Ƶ��һ������
+	if(endy>784)endy-=784;		//这里要看时序图 784为行频的一个周期
 
 
-	rd_Sensor_Reg(0X03,&temp);	//��ȡ��Ƶ���ֽ�
-	temp&=0XF0;					//���4λ
-	temp|=((endx&0X03)<<2)|(sx&0X03);  //������ĵ��ֽ�����
+	rd_Sensor_Reg(0X03,&temp);	//读取场频低字节
+	temp&=0XF0;					//清低4位
+	temp|=((endx&0X03)<<2)|(sx&0X03);  //将计算的低字节移入
 
-	wr_Sensor_Reg(0X03,temp);		 //д��
+	wr_Sensor_Reg(0X03,temp);		 //写入
 	wr_Sensor_Reg(0X19,sx>>2);
 	wr_Sensor_Reg(0X1A,endx>>2);
 
-	rd_Sensor_Reg(0X32,&temp);		 //ͬ��
+	rd_Sensor_Reg(0X32,&temp);		 //同上
 	temp&=0XC0;
 	temp|=((endy&0X07)<<3)|(sy&0X07);
 
 	wr_Sensor_Reg(0X32,temp);	
-    wr_Sensor_Reg(0X17,sy>>3);		 //��Ƶ��ʼ��8λ
-	wr_Sensor_Reg(0X18,endy>>3);	 //��Ƶ������8λ
+    wr_Sensor_Reg(0X17,sy>>3);		 //行频开始高8位
+	wr_Sensor_Reg(0X18,endy>>3);	 //行频结束高8位
 }
 
-u8 cur_status=0;			 //֡��־λ  ��interrupt.c�����е���
+u8 cur_status=0;			 //帧标志位  在interrupt.c函数中调用
 
-void zhen() interrupt 0 //�ⲿ�ж�0  P3.2  �ж�֡����
+void zhen() interrupt 0 //外部中断0  P3.2  判断帧数据
  {
 
  
-   if(cur_status==0) //�����ʱ״̬Ϊ0����˵����һ��ͼ��Ŀ�ʼ����ʼ��FIFO��������
+   if(cur_status==0) //如果此时状态为0，则说明是一个图像的开始，开始向FIFO罐入数据
     {
-     FIFO_WRST=0;	 //д��λ
+     FIFO_WRST=0;	 //写复位
      FIFO_WRST=1;
-     FIFO_WEN=1;	 //дFIFOʹ��
-     cur_status=1;   //���Ϊ1
+     FIFO_WEN=1;	 //写FIFO使能
+     cur_status=1;   //标记为1
     }
    else 
-    if(cur_status==1)	//˵���˴�Ϊͼ��Ľ������༴��һͼ��Ŀ�ʼ
+    if(cur_status==1)	//说明此处为图像的结束，亦即下一图像的开始
      {
-       FIFO_WEN=0;		//дFIFO����
-       FIFO_WRST=0;		//д��λ
+       FIFO_WEN=0;		//写FIFO禁能
+       FIFO_WRST=0;		//写复位
        FIFO_WRST=1;
-       cur_status=2;	//���Ϊ2  ��ʱ˵�����Զ�ȡFIFO�еĻ�������
+       cur_status=2;	//标记为2  此时说明可以读取FIFO中的缓存数据
      }
   }
