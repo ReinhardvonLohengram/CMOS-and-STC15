@@ -3,7 +3,7 @@
 #ifndef DEF_H
 #define DEF_H
 
-sbit  led=P3^5;			 //定义P3.5口 LED指示灯
+sbit  led=P3^5;			 //露篓脪氓P3.5驴脷 LED脰赂脢戮碌脝
 
 //#define uchar unsigned char  
 //#define uint  unsigned int 
