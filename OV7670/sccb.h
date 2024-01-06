@@ -3,8 +3,8 @@
 #include "def.h"
 
 
-sbit SCCB_SIC=P3^0;		  //Ê±ÖÓ
-sbit SCCB_SID=P3^1;		  //Êı¾İ
+sbit SCCB_SIC=P3^0;		  //ÃŠÂ±Ã–Ã“
+sbit SCCB_SID=P3^1;		  //ÃŠÃ½Â¾Ã
 
 
 #define DELAYTIME 200
